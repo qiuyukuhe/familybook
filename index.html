@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>家庭账簿</title>
+    <title>小家账簿</title>
     <link rel="stylesheet" href="lib/bootstrap-4.0.0-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/bootstrap-datepicker3.min.css">
     <style>
@@ -14,7 +14,7 @@
 
 
 <div class="container">
-    <h1 class="align-middle w-100" style="text-align: center; line-height: 200%">家庭记账</h1>
+    <h1 class="align-middle w-100" style="text-align: center; line-height: 200%">小家账簿</h1>
     <div id="main" style="height:400px; width: 1080px"></div>
     <form class="w-50 col-center-block container">
 
@@ -101,7 +101,7 @@
 </script>
 <script>
     "use strict";
-    var dappAddress = "n1oBgwyqJeZbFFmczbzEv7okZLBft6fse2V";
+    var dappAddress = "n1g3xcTK76QzmyY1sr8q1PzbBXhsawuKp6c";
 
     var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
     var nebPay = new NebPay();
@@ -133,7 +133,7 @@
         var dataMap;
         // dataMap = d_Map;
         if (resp.result == 'null' || resp.result == '{}' || typeof(resp.result) == "undefined") {
-            alert("您暂未提交任何家庭账本，我们将显示一个模拟的账簿，贷您提交账簿之后，即可正常显示您的");
+            alert("您暂未提交任何家庭账本，我们将显示一个模拟的账簿，贷您提交账簿之后，即可正常显示您的数据");
             dataMap = d_Map;
         }
         else {
