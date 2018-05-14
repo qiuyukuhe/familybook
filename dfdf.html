@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+    <script src="js/bootstrap-datepicker.min.js"></script>
+    <script src="js/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap-datepicker3.min.css">
+</head>
+<body>
+
+<script>
+    $(function () {
+        alert('sdf')
+        alert($('#createdate'))
+        $('#createdate').datepicker();
+    });
+</script>
+
+<div class="form-group">
+    <label for="createdate">日期</label>
+    <input type="text" class="form-control datepicker" id="createdate" placeholder="">
+    <input class="datepicker" data-date-format="mm/dd/yyyy">
+</div>
+
+</body>
+</html>

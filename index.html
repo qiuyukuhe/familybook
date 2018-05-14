@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>家庭账簿</title>
+    <link rel="stylesheet" href="lib/bootstrap-4.0.0-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datepicker3.min.css">
+    <style>
+        .col-md-3 input {
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="container">
+    <h1 class="align-middle w-100" style="text-align: center; line-height: 200%">家庭记账</h1>
+    <div id="main" style="height:400px; width: 1080px"></div>
+    <form class="w-50 col-center-block container">
+
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="cloth">衣</label>
+                <input type="text" value="0" class="form-control" id="cloth" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="food">食</label>
+                <input type="text" value="0" class="form-control" id="food" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="house">住</label>
+                <input type="text" value="0" class="form-control" id="house" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="traffic">行</label>
+                <input type="text" value="0" class="form-control" id="traffic" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="traffic">育</label>
+                <input type="text" value="0" class="form-control" id="education" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="invest">投</label>
+                <input type="text" value="0" class="form-control" id="invest" placeholder="" required="required">
+            </div>
+        </div>
+
+        <script src="js/jquery-1.9.1.min.js"></script>
+        <script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+        <script src="js/bootstrap-datepicker.min.js"></script>
+        <script src="js/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+
+        <script>
+            $(function () {
+                $('#bookdate').datepicker({
+                    language: 'zh-CN',
+                    autoclose: true,
+                    todayHighlight: true
+                });
+            });
+
+        </script>
+
+        <div class="form-group">
+            <label for="bookdate">日期</label>
+            <input type="text" class="form-control" id="bookdate" placeholder="" data-date-format="yyyy-mm-dd" required="required">
+        </div>
+        <div class="form-group">
+            <label for="content">备注</label>
+            <textarea class="form-control date-picker" id="content" rows="5" placeholder="备注内容"></textarea>
+        </div>
+        <br>
+        <button id="push" class="btn btn-primary mb-2">提交</button>
+        <br>
+        <br>
+    </form>
+</div>
+
+
+<script src=lib/nebPay.js></script>
+<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+<script src=lib/nebulas.js></script>
+
+<script>
+    var BookItem = function (text) {
+        console.log(text)
+        if (text) {
+            text = text.replace(/\\/g, "");
+            var obj = JSON.parse(text);
+            this.cloth = obj.cloth;
+            this.food = obj.food;
+            this.house = obj.house;
+            this.traffic = obj.traffic;
+            this.education = obj.education;
+            this.invest = obj.invest;
+            this.bookdate = obj.bookdate;
+            this.content = obj.content;
+            this.createdate = new Date();
+        }
+    };
+</script>
+<script>
+    "use strict";
+    var dappAddress = "n1oBgwyqJeZbFFmczbzEv7okZLBft6fse2V";
+
+    var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+    var nebPay = new NebPay();
+    var serialNumber;
+
+    $(function () {
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "getAll";
+        var callArgs = "";
+
+        serialNumber = nebPay.simulateCall(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: initCharts        //设置listener, 处理交易返回信息
+        });
+    });
+
+    var d_Map = {};
+    d_Map["2018-05-14"] = new BookItem('{"cloth":100,"food":50,"house":0,"traffic":0,"education":20,"invest":1000}');
+    d_Map["2018-05-13"] = new BookItem('{"cloth":0,"food":100,"house":1000,"traffic":100,"education":200,"invest":0}');
+    d_Map["2018-05-12"] = new BookItem('{"cloth":100,"food":50,"house":0,"traffic":10,"education":80,"invest":90}');
+    d_Map["2018-05-11"] = new BookItem('{"cloth":67,"food":22,"house":0,"traffic":0,"education":56,"invest":200}');
+    d_Map["2018-05-09"] = new BookItem('{"cloth":55,"food":50,"house":0,"traffic":90,"education":90,"invest":1000}');
+    d_Map["2018-05-08"] = new BookItem('{"cloth":100,"food":67,"house":0,"traffic":50,"education":0,"invest":200}');
+    d_Map["2018-05-07"] = new BookItem('{"cloth":12,"food":33,"house":0,"traffic":0,"education":0,"invest":100}');
+
+    function initCharts(resp) {
+        console.log("response of respone: " + JSON.stringify(resp));
+        console.log(resp)
+        var dataMap;
+        // dataMap = d_Map;
+        if (resp.result == 'null' || resp.result == '{}' || typeof(resp.result) == "undefined") {
+            alert("您暂未提交任何家庭账本，我们将显示一个模拟的账簿，贷您提交账簿之后，即可正常显示您的");
+            dataMap = d_Map;
+        }
+        else {
+            dataMap = eval(JSON.parse(resp.result));
+        }
+
+        var keys = [];
+        for(var i in dataMap){
+            keys.push(i);
+        }
+
+        keys.sort(function (x, y) {
+            return y - x;
+        });
+
+        if (keys.length > 20) {
+            keys = keys.slice(0, 20);
+        }
+
+/*        keys.sort(function (x, y) {
+            return x - y;
+        });*/
+
+        var dataSeries = [
+            {
+                name: '衣',
+                type: 'line',
+                stack: '总量',
+                _myname: 'cloth',
+                data: []
+            },
+            {
+                name: '住',
+                type: 'line',
+                stack: '总量',
+                _myname: 'food',
+                data: []
+            },
+            {
+                name: '行',
+                type: 'line',
+                stack: '总量',
+                _myname: 'house',
+                data: []
+            },
+            {
+                name: '交',
+                type: 'line',
+                stack: '总量',
+                _myname: 'traffic',
+                data: []
+            },
+            {
+                name: '育',
+                type: 'line',
+                stack: '总量',
+                _myname: 'education',
+                data: []
+            },
+            {
+                name: '投',
+                type: 'line',
+                stack: '总量',
+                _myname: 'invest',
+                data: []
+            }
+        ];
+
+
+        var clothTotla = 0;
+        console.log(keys);
+        console.log(keys.length)
+        for (var i = 0; i < keys.length; i++) {
+            var dfb = dataMap[keys[i]];
+            for (var j = 0; j < dataSeries.length; j++) {
+                dataSeries[j].data.push(dfb[dataSeries[j]['_myname']]);
+            }
+        }
+
+        familyCharts(keys, dataSeries);
+
+    }
+
+
+    $("#push").click(function () {
+
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "save";
+
+        var data = {
+            cloth: $("#cloth").val(),
+            food: $("#food").val(),
+            house: $("#house").val(),
+            traffic: $("#traffic").val(),
+            education: $("#education").val(),
+            invest: $("#invest").val(),
+            bookdate: $("#bookdate").val(),
+            content: $("#content").val()
+        };
+
+        if(data.bookdate == '' || data.bookdate.trim() == ''){
+            alert("请输入记账时间!");
+            return false;
+        }
+
+        for (var i in data) {
+            if (i != 'content' && i != 'bookdate' && isNaN(data[i])) {
+                alert("请输入数字");
+                return false;
+            }
+            if (data[i] == '' || data[i].trim()  == ''){
+                data[i] = 0;
+            }
+        }
+
+        console.log(JSON.stringify(data));
+        var callArgs = [];
+        callArgs.push(JSON.stringify(data));
+        console.log(JSON.stringify(callArgs))
+        serialNumber = nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {    //使用nebpay的call接口去调用合约,
+            listener: cbPush        //设置listener, 处理交易返回信息
+        });
+
+        intervalQuery = setInterval(function () {
+            funcIntervalQuery();
+        }, 5000);
+
+        return false;
+    });
+
+    var intervalQuery;
+
+    function funcIntervalQuery() {
+        nebPay.queryPayInfo(serialNumber)   //search transaction result from server (result upload to server by app)
+            .then(function (resp) {
+                console.log("tx result: " + resp)   //resp is a JSON string
+                var respObject = JSON.parse(resp)
+                if (respObject.code === 0) {
+                    alert('保存成功，稍后刷新查看!');
+                    clearInterval(intervalQuery);
+                    window.location.reload();
+                }
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
+    }
+
+    function cbPush(resp) {
+        console.log("response of push: " + JSON.stringify(resp))
+    }
+</script>
+
+
+<!-- ECharts单文件引入 -->
+<script src="http://echarts.baidu.com/build/dist/echarts-all.js"></script>
+<script type="text/javascript">
+    // 使用
+    var familyCharts = function (dataAxAxis, dataSeries) {
+        // 基于准备好的dom，初始化echarts图表
+        var myChart = echarts.init(document.getElementById('main'));
+        var option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['衣', '食', '住', '行', '育', '投']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: dataAxAxis
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: dataSeries
+        };
+
+        // 为echarts对象加载数据
+        myChart.setOption(option);
+    };
+</script>
+
+</body>
+</html>

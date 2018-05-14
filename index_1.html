@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>家庭账簿</title>
+    <link rel="stylesheet" href="lib/bootstrap-4.0.0-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datepicker3.min.css">
+    <style>
+        .col-md-3 input {
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="container">
+    <h1 class="align-middle w-100" style="text-align: center; line-height: 200%">家庭记账</h1>
+    <div id="main" style="height:400px; width: 1080px"></div>
+    <form class="w-50 col-center-block container">
+
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="cloth">衣</label>
+                <input type="text" value="0" class="form-control" id="cloth" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="food">食</label>
+                <input type="text" value="0" class="form-control" id="food" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="house">住</label>
+                <input type="text" value="0" class="form-control" id="house" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="traffic">行</label>
+                <input type="text" value="0" class="form-control" id="traffic" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="traffic">育</label>
+                <input type="text" value="0" class="form-control" id="education" placeholder="" required="required">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="invest">投</label>
+                <input type="text" value="0" class="form-control" id="invest" placeholder="" required="required">
+            </div>
+        </div>
+
+        <script src="js/jquery-1.9.1.min.js"></script>
+        <script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+        <script src="js/bootstrap-datepicker.min.js"></script>
+        <script src="js/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+
+        <script>
+            $(function () {
+                $('#bookdate').datepicker({
+                    language: 'zh-CN',
+                    autoclose: true,
+                    todayHighlight: true
+                });
+            });
+
+        </script>
+
+        <div class="form-group">
+            <label for="bookdate">日期</label>
+            <input type="text" class="form-control" id="bookdate" placeholder="" data-date-format="yyyy-mm-dd" required="required">
+        </div>
+        <div class="form-group">
+            <label for="content">备注</label>
+            <textarea class="form-control date-picker" id="content" rows="5" placeholder="备注内容"></textarea>
+        </div>
+        <br>
+        <button id="push" class="btn btn-primary mb-2">提交</button>
+        <br>
+        <br>
+    </form>
+</div>
+
+
+<script src=lib/nebPay.js></script>
+<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+<script src=lib/nebulas.js></script>
+
+<script>
+    $("#search").click(function () {
+            window.location = 'search.html';
+        }
+    );
+</script>
+<script>
+    "use strict";
+    var dappAddress = "n1z3nX2oM7yKffz6opsJf9Rd8WSGXz416cU";
+
+    var nebulas = require("nebulas");
+    var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+    var nebPay = new NebPay();
+    var serialNumber;
+
+    $(function () {
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "getAll";
+        var callArgs = "";
+
+        serialNumber = nebPay.simulateCall(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: initCharts        //设置listener, 处理交易返回信息
+        });
+    });
+
+    function initCharts(resp) {
+        console.log("response of respone: " + JSON.stringify(resp));
+        if (resp.result == 'null' || resp.result == '' || typeof(resp.result) == "undefined") {
+            return;
+        }
+        var result = eval(JSON.parse(resp.result));
+    }
+
+
+    $("#push").click(function () {
+
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "save";
+
+        var data = {
+            cloth: $("#cloth").val(),
+            food: $("#food").val(),
+            house: $("#house").val(),
+            traffic: $("#traffic").val(),
+            education: $("#education").val(),
+            invest: $("#invest").val(),
+            bookdate: $("#bookdate").val(),
+            content: $("#content").val()
+        }
+
+        for (var i in data) {
+            if (!isNaN(data[i])) {
+                alert("请输入数字");
+                return false;
+            }
+        }
+
+        //var content = $("#username").val() + "\",\"" + $("#userphone").val() + "\",\"" + $("#useraddress").val() + "\",\"" + $("#usercontext").val();
+        console.log(JSON.stringify(data));
+        var str = JSON.stringify(data).replace(/\"/g, "\\\"");
+        console.log(str)
+        var callArgs = []
+        callArgs.push()
+        console.log(callArgs);
+        serialNumber = nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: cbPush        //设置listener, 处理交易返回信息
+        });
+
+        return false;
+    });
+
+    function cbPush(resp) {
+        console.log("response of push: " + JSON.stringify(resp))
+    }
+</script>
+
+
+<!-- ECharts单文件引入 -->
+<script src="http://echarts.baidu.com/build/dist/echarts-all.js"></script>
+<script type="text/javascript">
+    // 使用
+    $(function () {
+        // 基于准备好的dom，初始化echarts图表
+        var myChart = echarts.init(document.getElementById('main'));
+        var option = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    mark: {show: true},
+                    dataView: {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                    restore: {show: true},
+                    saveAsImage: {show: true}
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '邮件营销',
+                    type: 'line',
+                    stack: '总量',
+                    data: [120, 132, 101, 134, 90, 230, 210]
+                },
+                {
+                    name: '联盟广告',
+                    type: 'line',
+                    stack: '总量',
+                    data: [220, 182, 191, 234, 290, 330, 310]
+                },
+                {
+                    name: '视频广告',
+                    type: 'line',
+                    stack: '总量',
+                    data: [150, 232, 201, 154, 190, 330, 410]
+                },
+                {
+                    name: '直接访问',
+                    type: 'line',
+                    stack: '总量',
+                    data: [320, 332, 301, 334, 390, 330, 320]
+                },
+                {
+                    name: '搜索引擎',
+                    type: 'line',
+                    stack: '总量',
+                    data: [820, 932, 901, 934, 1290, 1330, 1320]
+                }
+            ]
+        };
+
+        // 为echarts对象加载数据
+        myChart.setOption(option);
+    });
+</script>
+
+</body>
+</html>
