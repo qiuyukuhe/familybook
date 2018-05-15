@@ -16,10 +16,34 @@
 <div class="container">
     <h1 class="align-middle w-100" style="text-align: center; line-height: 200%">小家账簿</h1>
     <div id="main" style="height:400px; width: 1080px"></div>
-    <form class="w-50 col-center-block container">
-
-        <div class="form-row">
-            <div class="form-group col-md-4">
+    <div class="w-50 container">
+        <div class="row">
+            <div class="col-sm" id="allVale">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+                <div class="col-sm" id="clothTotal">
+                </div>
+                <div class="col-sm" id="foodTotal">
+                </div>
+                <div class="col-sm" id="houseTotal">
+                </div>
+            </div>
+        <div class="row">
+            <div class="col-sm" id="trafficTotal">
+            </div>
+            <div class="col-sm" id="educationTotal">
+            </div>
+            <div class="col-sm" id="investTotal">
+            </div>
+        </div>
+    </div>
+    <br>
+    <form class="w-50 col-center-block container" style="border-top: 1px solid #ccc">
+        <h3 style="margin-top: 20px">记账</h3>
+        <div class="form-row" style="margin-top: 20px">
+            <div class="form-group col-md-4" >
                 <label for="cloth">衣</label>
                 <input type="text" value="0" class="form-control" id="cloth" placeholder="" required="required">
             </div>
@@ -141,9 +165,27 @@
         }
 
         var keys = [];
-        for(var i in dataMap){
-            keys.push(i);
+        var totalKey = ["clothTotal", "foodTotal", "houseTotal", "trafficTotal", "educationTotal", "investTotal"];
+        var totalValue = [0,0,0,0,0,0];
+        var allVale = 0;
+//        console.log(totalValue);
+//        console.log(allVale)
+        for(var cd in dataMap){
+            keys.push(cd);
+            for(var ki = 0; ki < totalKey.length; ki++){
+                var key = totalKey[ki].replace('Total', '');
+                totalValue[ki] += dataMap[cd][key];
+                allVale += dataMap[cd][key];
+            }
         }
+
+        $('#allVale').html('总记：  ' + allVale);
+        $('#clothTotal').html('总衣：  ' + totalValue[0]);
+        $('#foodTotal').html('总食：  ' + totalValue[1]);
+        $('#houseTotal').html('总住：  ' + totalValue[2]);
+        $('#trafficTotal').html('总交：  ' + totalValue[3]);
+        $('#educationTotal').html('总育：  ' + totalValue[4]);
+        $('#investTotal').html('总投：  ' + totalValue[5]);
 
         keys.sort(function (x, y) {
             return y - x;
@@ -203,7 +245,7 @@
         ];
 
 
-        var clothTotla = 0;
+
         console.log(keys);
         console.log(keys.length)
         for (var i = 0; i < keys.length; i++) {
