@@ -174,8 +174,8 @@
             keys.push(cd);
             for(var ki = 0; ki < totalKey.length; ki++){
                 var key = totalKey[ki].replace('Total', '');
-                totalValue[ki] += dataMap[cd][key];
-                allVale += dataMap[cd][key];
+                totalValue[ki] += parseInt(dataMap[cd][key]);
+                allVale += parseInt(dataMap[cd][key]);
             }
         }
 
